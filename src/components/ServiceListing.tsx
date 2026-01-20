@@ -263,11 +263,18 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                     localStorage.setItem('servicii24_city', city) // Save to storage
                 }
             } catch (err) {
-                console.error(err)
+                console.error("Geocoding error:", err)
             } finally {
                 setIsLocating(false)
             }
-        }, () => setIsLocating(false))
+        }, (err) => {
+            console.error("Geolocation error:", err)
+            setIsLocating(false)
+        }, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        })
     }
 
     return (

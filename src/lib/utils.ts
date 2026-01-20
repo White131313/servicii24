@@ -25,6 +25,7 @@ export const CITY_NAME_MAPPINGS: Record<string, string[]> = {
     "gyergyoszentmiklos": ["gheorgheni", "gyergyoszentmiklos"],
     "odorheiu secuiesc": ["odorheiu secuiesc", "szekelyudvarhely"],
     "szekelyudvarhely": ["odorheiu secuiesc", "szekelyudvarhely"],
+    "ciumani": ["gheorgheni", "ciumani", "hargita", "harghita"],
 };
 
 // Separated by language to prevent cross-language URL generation
