@@ -94,22 +94,46 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         }
     }[lang]
 
+    const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null)
+
+    // Initial Fetch (Standard)
     useEffect(() => {
         const fetchProviders = async () => {
+            setLoading(true)
             try {
-                const { data, error: supabaseError } = await supabase
-                    .from('providers')
-                    .select('*')
-                if (supabaseError) throw supabaseError
-                setProviders(data || [])
+                // If we have precise user coordinates, use the new Radius Search RPC
+                if (userLocation) {
+                    const { data, error: rpcError } = await supabase
+                        .rpc('get_nearby_providers', {
+                            user_lat: userLocation.lat,
+                            user_lng: userLocation.lng,
+                            radius_km: 50 // [CONFIG] Search radius in KM
+                        })
+
+                    if (rpcError) throw rpcError
+                    setProviders(data || [])
+                } else {
+                    // Fallback to standard fetch (all providers)
+                    const { data, error: supabaseError } = await supabase
+                        .from('providers')
+                        .select('*')
+                    if (supabaseError) throw supabaseError
+                    setProviders(data || [])
+                }
             } catch (err: any) {
                 setError(err.message)
             } finally {
                 setLoading(false)
             }
         }
-        fetchProviders()
-    }, [])
+
+        // Debounce slightly to avoid rapid re-fetches if location updates quickly
+        const timeoutId = setTimeout(() => {
+            fetchProviders()
+        }, 100)
+
+        return () => clearTimeout(timeoutId)
+    }, [userLocation]) // Trigger re-fetch when location changes
 
     const categories = useMemo(() => {
         const langProviders = providers.filter(p => p.language === lang)
@@ -118,45 +142,42 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
     }, [providers, lang])
 
     const filteredProviders = useMemo(() => {
-        // Universal normalization function: lowercase, trim, remove accents/diacritics, replace hyphens
+        // Universal normalization function
         const normalize = (s: string) => s.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/-/g, ' ');
 
-        // First filter by language to ensure we don't mix RO/HU results
+        // First filter by language
         let result = providers.filter(p => p.language === lang)
 
         if (selectedCategory) {
             const normalizedSelected = normalize(selectedCategory);
             result = result.filter(p => {
                 const normalizedCat = normalize(p.category);
-                // STRICT CHECK: The provider category must contain the selected category (e.g. "Instalator AC" contains "Instalator", but "Instalator" does NOT contain "Instalator AC")
                 return normalizedCat === normalizedSelected ||
                     normalizedCat.replace(/i$/, '') === normalizedSelected.replace(/i$/, '') ||
                     normalizedCat === normalizedSelected
             })
         }
         if (search) {
-            // Normalize search terms as well
             const searchTerms = normalize(search).split(/\s+/).filter(t => t.length > 0)
             result = result.filter(p => {
-                // Normalize provider content
                 const content = normalize(`${p.name} ${p.category} ${p.city} ${p.description}`)
                 return searchTerms.every(term => content.includes(term))
             })
         }
-        if (detectedCity) { // REMOVED !search check to allow simultaneous filtering
-            const searchCity = normalize(detectedCity)
 
-            // Get variants based on the normalized search city
-            // Since MAPPINGS keys are normalized/lowercase, this should hit if the key matches
+        // CITY FILTERING LOGIC UPDATE:
+        // If we have `userLocation` (Radius Search is active), we SKIP text-based city filtering
+        // because the DB has already filtered by distance!
+        // We only apply text filtering if the user MANUALLY typed a city or if we fell back to text-based detection.
+        if (detectedCity && !userLocation) {
+            const searchCity = normalize(detectedCity)
             let variants = CITY_NAME_MAPPINGS[searchCity] || COUNTY_MAPPINGS[searchCity] || [searchCity]
 
-            // If strictly only found itself, try to find it as a VALUE in the mappings (Reverse Lookup)
-            // e.g. User searches "csikszereda" but key is "miercurea ciuc"
             if (variants.length === 1 && variants[0] === searchCity) {
                 Object.entries(CITY_NAME_MAPPINGS).forEach(([key, values]) => {
                     const normalizedValues = values.map(v => normalize(v))
                     if (normalizedValues.includes(searchCity)) {
-                        variants = [...values, key] // Add all variants + the key itself
+                        variants = [...values, key]
                     }
                 })
             }
@@ -167,9 +188,9 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
             })
         }
         return result
-    }, [search, providers, selectedCategory, detectedCity, lang])
+    }, [search, providers, selectedCategory, detectedCity, userLocation, lang])
 
-    // Filter Scroll Logic
+    // ... (Scroll logic stays the same) ...
     const scrollRef = useRef<HTMLDivElement>(null)
     const [canScrollLeft, setCanScrollLeft] = useState(false)
     const [canScrollRight, setCanScrollRight] = useState(false)
@@ -201,34 +222,28 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
 
     // Auto-detect location if permission is already granted OR restore from localStorage
     useEffect(() => {
-        // 1. Try to restore from localStorage locally (Saved City)
         const savedCity = localStorage.getItem('servicii24_city')
-
-        // 2. Check PERMANENT permission (Granted)
         const permGranted = localStorage.getItem('servicii24_permission') === 'granted'
-
-        // 3. Check TEMPORARY permission (Denied - Session only)
         const permDenied = sessionStorage.getItem('servicii24_permission') === 'denied'
 
         if (savedCity) {
             setDetectedCity(savedCity)
             setShowLocationPrompt(false)
+            // Try to recover coords if permission was granted previously to refine search
+            if (permGranted) handleLocationRequest()
             return
         }
 
-        // If explicitly denied in this session, don't ask
         if (permDenied) {
             setShowLocationPrompt(false)
             return
         }
 
-        // If granted permanently, go ahead
         if (permGranted) {
             handleLocationRequest()
             return
         }
 
-        // 4. If no saved intent, check browser permission is already granted
         if (!detectedCity && !initialCity && navigator.permissions && navigator.geolocation) {
             navigator.permissions.query({ name: 'geolocation' }).then((result) => {
                 if (result.state === 'granted') {
@@ -255,6 +270,10 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         navigator.geolocation.getCurrentPosition(async (position) => {
             try {
                 const { latitude, longitude } = position.coords
+
+                // [NEW] Store coordinates for Radius Search
+                setUserLocation({ lat: latitude, lng: longitude })
+
                 const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=${lang}`)
                 const data = await response.json()
                 const city = data.city || data.locality || data.principalSubdivision

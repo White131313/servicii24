@@ -14,6 +14,8 @@ export type Provider = {
     is_verified: boolean
     service_area: string | null
     created_at: string
+    latitude?: number
+    longitude?: number
 }
 
 export type Language = 'ro' | 'hu'
