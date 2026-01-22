@@ -510,6 +510,15 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                 </div>
             </section>
 
+            {/* TEMPORARY DEBUG OVERLAY */}
+            <div className="fixed bottom-0 left-0 right-0 bg-black/80 text-green-400 p-2 text-[10px] font-mono z-[9999] pointer-events-none">
+                <p>LAT: {userLocation?.lat || 'N/A'} | LNG: {userLocation?.lng || 'N/A'}</p>
+                <p>CITY: {detectedCity || 'N/A'}</p>
+                <p>PROVIDERS: {providers.length} | FILTERED: {filteredProviders.length}</p>
+                <p>STATUS: {loading ? 'LOADING' : 'IDLE'} | ERR: {error || 'NONE'}</p>
+                <p>LOCATING: {isLocating ? 'YES' : 'NO'}</p>
+            </div>
+
             {isModalOpen && selectedProvider && (
                 <ProviderModal provider={selectedProvider} lang={lang} onClose={() => setIsModalOpen(false)} />
             )}
