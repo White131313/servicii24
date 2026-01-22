@@ -110,12 +110,14 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                             radius_km: 50 // [CONFIG] Search radius in KM
                         })
 
-                    if (!rpcError && data) {
+                    // [FIX] If RPC worked but returned 0 results (e.g. user is in a remote village >50km away),
+                    // FALLBACK to standard fetch so they don't see an empty screen.
+                    if (!rpcError && data && data.length > 0) {
                         setProviders(data)
                         setLoading(false)
-                        return // Exit if RPC worked
+                        return // Exit if RPC found something
                     }
-                    console.warn("RPC failed, falling back to standard fetch:", rpcError)
+                    console.warn("RPC returned 0 results or failed, falling back to standard fetch.")
                 }
 
                 // Fallback (Standard Fetch)
