@@ -307,7 +307,11 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         setLoading(true)
         setDetectedCity(null)
         setUserLocation(null)
+
+        // Clear ALL location persistence logic to prevent auto-re-fetch on reload
         localStorage.removeItem('servicii24_city')
+        localStorage.removeItem('servicii24_permission')
+        localStorage.removeItem('servicii24_coords')
 
         // Small delay to ensure state updates propagate before re-fetching
         setTimeout(() => {
