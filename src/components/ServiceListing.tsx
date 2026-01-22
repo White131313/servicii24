@@ -228,6 +228,13 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
 
     // Auto-detect location if permission is already granted OR restore from localStorage
     useEffect(() => {
+        // [CRITICAL] Check if user MANUALLY cleared location - if so, do NOTHING automatic
+        const manuallyCleared = localStorage.getItem('servicii24_manual_clear') === 'true'
+        if (manuallyCleared) {
+            setShowLocationPrompt(false) // Don't show prompt either, user wants clean slate
+            return // EXIT EARLY - user explicitly cleared, don't auto-locate
+        }
+
         const savedCity = localStorage.getItem('servicii24_city')
         const permGranted = localStorage.getItem('servicii24_permission') === 'granted'
         const permDenied = sessionStorage.getItem('servicii24_permission') === 'denied'
@@ -251,16 +258,11 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         }
 
         if (!detectedCity && !initialCity && navigator.permissions && navigator.geolocation) {
-            // Check if user MANUALLY cleared location recently to prevent Loop
-            const manuallyCleared = localStorage.getItem('servicii24_manual_clear') === 'true'
-
-            if (!manuallyCleared) {
-                navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-                    if (result.state === 'granted') {
-                        handleLocationRequest()
-                    }
-                })
-            }
+            navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+                if (result.state === 'granted') {
+                    handleLocationRequest()
+                }
+            })
         }
     }, [])
 
@@ -373,7 +375,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                         <div className="bg-green-500/10 text-green-600 dark:text-green-400 rounded-xl px-4 py-2 flex items-center justify-between gap-2 border border-green-500/20 mb-2 max-w-2xl mx-auto">
                             <div className="flex items-center gap-2 text-sm font-bold">
                                 <MapPin size={16} />
-                                <span>{t.locationFound} <span className="underline">{detectedCity}</span></span>
+                                <span>{t.locationFound} <span className="underline">{detectedCity}</span> <span className="opacity-60">(+50km)</span></span>
                             </div>
                             <button onClick={handleClearLocation} className="text-xs uppercase font-black opacity-60 hover:opacity-100">[{t.clear}]</button>
                         </div>
