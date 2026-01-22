@@ -302,6 +302,19 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         })
     }
 
+    const handleClearLocation = () => {
+        // Force UI reset
+        setLoading(true)
+        setDetectedCity(null)
+        setUserLocation(null)
+        localStorage.removeItem('servicii24_city')
+
+        // Small delay to ensure state updates propagate before re-fetching
+        setTimeout(() => {
+            setLoading(false)
+        }, 500)
+    }
+
     return (
         <main className="container mx-auto px-4 py-4 sm:py-6">
             <div className="flex flex-col items-center text-center mb-8 sm:mb-12">
@@ -353,11 +366,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                                 <MapPin size={16} />
                                 <span>{t.locationFound} <span className="underline">{detectedCity}</span></span>
                             </div>
-                            <button onClick={() => {
-                                setDetectedCity(null)
-                                setUserLocation(null) // Reset radius search coordinates
-                                localStorage.removeItem('servicii24_city') // Clear stored city preference
-                            }} className="text-xs uppercase font-black opacity-60 hover:opacity-100">[{t.clear}]</button>
+                            <button onClick={handleClearLocation} className="text-xs uppercase font-black opacity-60 hover:opacity-100">[{t.clear}]</button>
                         </div>
                     )}
 
