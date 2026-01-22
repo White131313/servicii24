@@ -101,7 +101,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         const fetchProviders = async () => {
             setLoading(true)
             try {
-                // If we have precise user coordinates, use the new Radius Search RPC
+                // If we have precise user coordinates, try Radius Search RPC
                 if (userLocation) {
                     const { data, error: rpcError } = await supabase
                         .rpc('get_nearby_providers', {
@@ -110,16 +110,20 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                             radius_km: 50 // [CONFIG] Search radius in KM
                         })
 
-                    if (rpcError) throw rpcError
-                    setProviders(data || [])
-                } else {
-                    // Fallback to standard fetch (all providers)
-                    const { data, error: supabaseError } = await supabase
-                        .from('providers')
-                        .select('*')
-                    if (supabaseError) throw supabaseError
-                    setProviders(data || [])
+                    if (!rpcError && data) {
+                        setProviders(data)
+                        setLoading(false)
+                        return // Exit if RPC worked
+                    }
+                    console.warn("RPC failed, falling back to standard fetch:", rpcError)
                 }
+
+                // Fallback (Standard Fetch)
+                const { data, error: supabaseError } = await supabase
+                    .from('providers')
+                    .select('*')
+                if (supabaseError) throw supabaseError
+                setProviders(data || [])
             } catch (err: any) {
                 setError(err.message)
             } finally {
