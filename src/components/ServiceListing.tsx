@@ -353,7 +353,11 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                                 <MapPin size={16} />
                                 <span>{t.locationFound} <span className="underline">{detectedCity}</span></span>
                             </div>
-                            <button onClick={() => setDetectedCity(null)} className="text-xs uppercase font-black opacity-60 hover:opacity-100">[{t.clear}]</button>
+                            <button onClick={() => {
+                                setDetectedCity(null)
+                                setUserLocation(null) // Reset radius search coordinates
+                                localStorage.removeItem('servicii24_city') // Clear stored city preference
+                            }} className="text-xs uppercase font-black opacity-60 hover:opacity-100">[{t.clear}]</button>
                         </div>
                     )}
 
