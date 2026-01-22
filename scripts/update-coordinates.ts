@@ -72,7 +72,7 @@ async function getCoordsForCity(city: string): Promise<{ lat: number, lng: numbe
 
     try {
         console.log(`[API] Fetching ${city}...`)
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(normalized)}&country=Romania&format=json&limit=1`, {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(normalizedCity)}&country=Romania&format=json&limit=1`, {
             headers: {
                 'User-Agent': 'Servicii24-Updater/1.0'
             }
