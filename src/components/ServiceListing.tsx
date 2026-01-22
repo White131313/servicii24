@@ -356,7 +356,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                             <div className="absolute left-3 sm:left-4 text-primary"><Search size={18} strokeWidth={2.5} /></div>
                             <input
                                 type="text"
-                                className="w-full pl-10 sm:pl-14 pr-4 py-3 sm:py-4 bg-transparent outline-none text-sm sm:text-xl font-semibold placeholder:text-muted-foreground/30"
+                                className="w-full pl-10 sm:pl-14 pr-4 py-3 sm:py-4 bg-transparent outline-none text-base sm:text-xl font-semibold placeholder:text-muted-foreground/30"
                                 placeholder={t.searchPlac}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
