@@ -303,20 +303,18 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
     }
 
     const handleClearLocation = () => {
-        // Force UI reset
+        // Force loading state for immediate feedback
         setLoading(true)
-        setDetectedCity(null)
-        setUserLocation(null)
 
-        // Clear ALL location persistence logic to prevent auto-re-fetch on reload
+        // Clear ALL persistence
         localStorage.removeItem('servicii24_city')
         localStorage.removeItem('servicii24_permission')
         localStorage.removeItem('servicii24_coords')
+        sessionStorage.clear() // Nukes session intentions too
 
-        // Small delay to ensure state updates propagate before re-fetching
-        setTimeout(() => {
-            setLoading(false)
-        }, 500)
+        // HARD RELOAD to guarantee fresh state
+        // This is the "Nuclear Option" to ensure mobile browsers don't cache the state
+        window.location.reload()
     }
 
     return (
