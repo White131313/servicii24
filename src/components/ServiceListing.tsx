@@ -228,11 +228,11 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
 
     // Auto-detect location if permission is already granted OR restore from localStorage
     useEffect(() => {
-        // [CRITICAL] Check if user MANUALLY cleared location - if so, do NOTHING automatic
-        const manuallyCleared = localStorage.getItem('servicii24_manual_clear') === 'true'
+        // [CRITICAL] Check if user MANUALLY cleared location - if so, show PROMPT but don't auto-locate
+        const manuallyCleared = sessionStorage.getItem('servicii24_manual_clear') === 'true'
         if (manuallyCleared) {
-            setShowLocationPrompt(false) // Don't show prompt either, user wants clean slate
-            return // EXIT EARLY - user explicitly cleared, don't auto-locate
+            setShowLocationPrompt(true)
+            return // EXIT EARLY - wait for user to click "Permite" again
         }
 
         const savedCity = localStorage.getItem('servicii24_city')
@@ -273,7 +273,8 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
 
     const handleLocationRequest = async () => {
         localStorage.setItem('servicii24_permission', 'granted') // Save intent
-        localStorage.removeItem('servicii24_manual_clear') // Remove block flag since user clicked "Allow"
+        localStorage.removeItem('servicii24_manual_clear')
+        sessionStorage.removeItem('servicii24_manual_clear') // Remove block flag since user clicked "Allow"
         setIsLocating(true)
         setShowLocationPrompt(false)
         if (!navigator.geolocation) {
@@ -318,8 +319,8 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         localStorage.removeItem('servicii24_city')
         localStorage.removeItem('servicii24_permission')
         localStorage.removeItem('servicii24_coords')
-        localStorage.setItem('servicii24_manual_clear', 'true') // [KEY] Set flag to block auto-loop
-        sessionStorage.clear() // Nukes session intentions too
+        sessionStorage.setItem('servicii24_manual_clear', 'true') // [KEY] Set flag in SESSION to block auto-loop but allow prompt
+        // Removed sessionStorage.clear() as it would clear our flag too!
 
         // HARD RELOAD to guarantee fresh state
         // This is the "Nuclear Option" to ensure mobile browsers don't cache the state
