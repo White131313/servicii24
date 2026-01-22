@@ -15,32 +15,59 @@ const supabase = createClient(
 )
 
 // Mapping of known cities to coordinates (Manual fallback + common ones)
-// This avoids hitting API limits and ensures accuracy for key cities
+// This avoids// Mapping of known cities to coordinates (Manual fallback + common ones)
 const CITY_COORDS: Record<string, { lat: number, lng: number }> = {
     'miercurea ciuc': { lat: 46.3603, lng: 25.8019 },
+    'miercureaciuc': { lat: 46.3603, lng: 25.8019 },
+    'csíkszereda': { lat: 46.3603, lng: 25.8019 },
     'gheorgheni': { lat: 46.7229, lng: 25.5975 },
+    'gyergyószentmiklós': { lat: 46.7229, lng: 25.5975 },
     'odorheiu secuiesc': { lat: 46.3039, lng: 25.2960 },
-    'toplita': { lat: 46.9248, lng: 25.3533 },
-    'cristuru secuiesc': { lat: 46.2905, lng: 25.0347 },
-    'vlahita': { lat: 46.3486, lng: 25.5297 },
-    'balan': { lat: 46.6500, lng: 25.8167 },
-    'borsec': { lat: 46.9740, lng: 25.5714 },
+    'székelyudvarhely': { lat: 46.3039, lng: 25.2960 },
+    'toplita': { lat: 46.9213, lng: 25.3537 },
+    'toplița': { lat: 46.9213, lng: 25.3537 },
+    'bălan': { lat: 46.6500, lng: 25.8000 },
+    'borsec': { lat: 46.9167, lng: 25.5667 },
+    'cristuru secuiesc': { lat: 46.2833, lng: 25.0333 },
+    'vlahita': { lat: 46.3500, lng: 25.5167 },
     'cluj-napoca': { lat: 46.7712, lng: 23.6236 },
+    'cluj napoca': { lat: 46.7712, lng: 23.6236 },
+    'cluj': { lat: 46.7712, lng: 23.6236 },
     'bucuresti': { lat: 44.4268, lng: 26.1025 },
+    'bucurești': { lat: 44.4268, lng: 26.1025 },
     'brasov': { lat: 45.6427, lng: 25.5887 },
-    'sibiu': { lat: 45.7983, lng: 24.1256 },
+    'brașov': { lat: 45.6427, lng: 25.5887 },
+    'brassó': { lat: 45.6427, lng: 25.5887 },
     'targu mures': { lat: 46.5456, lng: 24.5625 },
-    'sfantu gheorghe': { lat: 45.8717, lng: 25.7876 }
-}
+    'târgu mureș': { lat: 46.5456, lng: 24.5625 },
+    'marosvásárhely': { lat: 46.5456, lng: 24.5625 },
+    'sfantu gheorghe': { lat: 45.8700, lng: 25.7900 },
+    'sfântu gheorghe': { lat: 45.8700, lng: 25.7900 },
+    'sepsiszentgyörgy': { lat: 45.8700, lng: 25.7900 },
+    'miercurea nirajului': { lat: 46.5333, lng: 24.7167 },
+    'nyárádszereda': { lat: 46.5333, lng: 24.7167 }
+};
 
 async function getCoordsForCity(city: string): Promise<{ lat: number, lng: number } | null> {
-    const normalized = city.toLowerCase().trim()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
+    if (!city) return null;
 
-    // Check hardcoded list first
-    if (CITY_COORDS[normalized]) {
-        console.log(`[CACHE] Found ${city} ->`, CITY_COORDS[normalized])
-        return CITY_COORDS[normalized]
+    const normalizedCity = city.toLowerCase().trim()
+        .replace(/ă/g, 'a').replace(/â/g, 'a') // Basic normalization
+        .replace(/ș/g, 's').replace(/ț/g, 't')
+        .replace(/\./g, '')
+
+    // 1. Try EXACT match
+    if (CITY_COORDS[city.toLowerCase().trim()]) {
+        console.log(`[CACHE] Found ${city} ->`, CITY_COORDS[city.toLowerCase().trim()]);
+        return CITY_COORDS[city.toLowerCase().trim()];
+    }
+
+    // 2. Try Normalized match
+    for (const [key, val] of Object.entries(CITY_COORDS)) {
+        if (normalizedCity.includes(key) || key.includes(normalizedCity)) {
+            console.log(`[CACHE (fuzzy)] Found ${city} (matched ${key}) ->`, val);
+            return val;
+        }
     }
 
     try {
