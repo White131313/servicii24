@@ -36,7 +36,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
             locationDeny: "Nu, mersi",
             locationTitle: "Locația ta",
             locationDesc: "Găsește meșteri din orașul tău.",
-            locationFound: "Folosim locația ta:",
+            locationFound: "Meseriași în zona",
             clear: "Șterge",
             results: "rezultate",
             noResults: "Niciun rezultat găsit",
@@ -68,7 +68,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
             locationDeny: "Nem, kösz",
             locationTitle: "Helymeghatározás",
             locationDesc: "Találjon mestereket a városában.",
-            locationFound: "Az Ön helyzetét használjuk:",
+            locationFound: "Szakemberek a környéken:",
             clear: "Törlés",
             results: "találat",
             noResults: "Nincs találat",
@@ -376,7 +376,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                         <div className="bg-green-500/10 text-green-600 dark:text-green-400 rounded-xl px-4 py-2 flex items-center justify-between gap-2 border border-green-500/20 mb-2 max-w-2xl mx-auto">
                             <div className="flex items-center gap-2 text-sm font-bold">
                                 <MapPin size={16} />
-                                <span>{t.locationFound} <span className="underline">{detectedCity}</span> <span className="opacity-60">(+50km)</span></span>
+                                <span>{t.locationFound} <span className="underline">{detectedCity}</span> <span className="opacity-60 font-normal text-xs ml-1">(rază 50km)</span></span>
                             </div>
                             <button onClick={handleClearLocation} className="text-xs uppercase font-black opacity-60 hover:opacity-100">[{t.clear}]</button>
                         </div>
