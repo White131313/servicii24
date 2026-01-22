@@ -251,11 +251,16 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         }
 
         if (!detectedCity && !initialCity && navigator.permissions && navigator.geolocation) {
-            navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-                if (result.state === 'granted') {
-                    handleLocationRequest()
-                }
-            })
+            // Check if user MANUALLY cleared location recently to prevent Loop
+            const manuallyCleared = localStorage.getItem('servicii24_manual_clear') === 'true'
+
+            if (!manuallyCleared) {
+                navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+                    if (result.state === 'granted') {
+                        handleLocationRequest()
+                    }
+                })
+            }
         }
     }, [])
 
@@ -266,6 +271,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
 
     const handleLocationRequest = async () => {
         localStorage.setItem('servicii24_permission', 'granted') // Save intent
+        localStorage.removeItem('servicii24_manual_clear') // Remove block flag since user clicked "Allow"
         setIsLocating(true)
         setShowLocationPrompt(false)
         if (!navigator.geolocation) {
@@ -310,6 +316,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         localStorage.removeItem('servicii24_city')
         localStorage.removeItem('servicii24_permission')
         localStorage.removeItem('servicii24_coords')
+        localStorage.setItem('servicii24_manual_clear', 'true') // [KEY] Set flag to block auto-loop
         sessionStorage.clear() // Nukes session intentions too
 
         // HARD RELOAD to guarantee fresh state
