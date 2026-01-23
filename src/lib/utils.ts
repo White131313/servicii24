@@ -140,8 +140,9 @@ export const translateProviderInfo = (text: string, lang: Language): string => {
         return score;
     };
 
-    // 1. Try to split by common separators (newline or sentence boundaries with capital letters)
-    const sections = text.split(/\n|(?<=[.!?])\s*(?=[A-ZŐŰÁÉÍÓÖÚÜ])/);
+    // 1. Try to split by common separators (newline or sentence boundaries)
+    // Updated regex to handle missing space after period: .Tapasztalt
+    const sections = text.split(/\n|(?<=[.!?])\s+(?=[A-ZŐŰÁÉÍÓÖÚÜ])|(?<=[.!?])(?=[A-ZŐŰÁÉÍÓÖÚÜ])/);
     let huParts: string[] = [];
 
     for (const section of sections) {
@@ -174,6 +175,10 @@ export const translateProviderInfo = (text: string, lang: Language): string => {
         'servicii profesionale': 'professzionális szolgáltatások',
         'Ofer': 'Kínálok', 'Oferim': 'Kínálunk',
         'experienta': 'tapasztalat',
+        'tapasztalt': 'experimentat',
+        'felelősségteljes': 'responsabil',
+        'condus responsabil': 'felelősségteljes vezetés',
+        'șofer': 'sofőr',
         'garantie': 'garancia',
         'echipa': 'csapat',
         'calitate': 'minőség',
