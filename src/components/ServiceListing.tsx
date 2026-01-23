@@ -332,7 +332,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
             <div className="flex flex-col items-center text-center mb-8 sm:mb-12">
                 <h1 className="text-4xl sm:text-6xl font-black mb-4 tracking-tight leading-[1.1]">
                     {selectedCategory && detectedCity
-                        ? <span className="text-gradient">{selectedCategory} în {detectedCity}</span>
+                        ? <span className="text-gradient">{lang === 'hu' ? `${selectedCategory} în ${detectedCity}`.replace(' în ', ' ') : `${selectedCategory} în ${detectedCity}`}</span>
                         : (lang === 'ro' ? (
                             <>
                                 Ai o urgență?<br />
@@ -340,8 +340,8 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                             </>
                         ) : (
                             <>
-                                Találjon szakembert gyorsan.<br />
-                                <span className="text-muted-foreground/40 font-bold block text-2xl sm:text-3xl mt-2">Hirdetések nélkül. Problémamentesen. Közvetlen kapcsolat.</span>
+                                Sürgősségi segítségre van szüksége?<br />
+                                <span className="text-muted-foreground/40 font-bold block text-2xl sm:text-3xl mt-2">Találja meg a szakembert 30 másodperc alatt.</span>
                             </>
                         ))}
                 </h1>
