@@ -120,21 +120,55 @@ export const isHungarianCategory = (cat: string): boolean => {
     return huCategories.includes(cat);
 };
 // Utility to translate common Romanian professional terms to Hungarian
+// It tries to detect if there's already a Hungarian part in the text and prioritize it.
 export const translateProviderInfo = (text: string, lang: Language): string => {
     if (lang !== 'hu' || !text) return text;
 
+    // 1. Try to detect if there's already a Hungarian section in the text.
+    // Heuristic: Splitting by newlines or sentences and looking for HU-specific characters.
+    const sections = text.split(/\n/);
+    const huSpecialChars = /[őűŐŰáéíóöúüÁÉÍÓÖÚÜ]/;
+
+    let huSections = sections.filter(s => huSpecialChars.test(s));
+
+    // If we have distinct sections and some are clearly Hungarian, use only those.
+    if (huSections.length > 0 && huSections.length < sections.length) {
+        return huSections.join('\n').trim();
+    }
+
+    // 2. If no newline separation, try sentence-based detection
+    const sentences = text.split(/([.!?]\s+)/);
+    let detectedHuSentences: string[] = [];
+    let hasRoSentences = false;
+
+    for (let i = 0; i < sentences.length; i++) {
+        if (huSpecialChars.test(sentences[i])) {
+            detectedHuSentences.push(sentences[i]);
+        } else if (sentences[i].trim().length > 10) {
+            hasRoSentences = true;
+        }
+    }
+
+    if (detectedHuSentences.length > 0 && hasRoSentences) {
+        return detectedHuSentences.join('').trim();
+    }
+
+    // 3. Fallback: Dictionary-based word/phrase replacement
     const dictionary: Record<string, string> = {
         // Availability
         'Luni': 'Hétfő', 'Marti': 'Kedd', 'Miercuri': 'Szerda', 'Joi': 'Csütörtök', 'Vineri': 'Péntek', 'Sambata': 'Szombat', 'Duminica': 'Vasárnap',
         'Non-stop': 'Non-stop', 'Urgențe': 'Sürgősségi', 'Zilnic': 'Naponta', 'Program': 'Munkarend',
         'Oricand': 'Bármikor', 'Disponibil': 'Elérhető', 'Interventii': 'Beavatkozások',
+        'Suna acum': 'Hívás most', 'Contact direct': 'Közvetlen kapcsolat',
 
         // Price estimates
-        'Pret negociabil': 'Alkuképes ár', 'De la': 'Től', 'Ron': 'Lei', 'Gratuit': 'Ingyenes',
-        'Contactati-ne': 'Lépjen kapcsolatba velünk', 'Estimare': 'Felmérés',
+        'Pret negociabil': 'Alkuképes ár', 'De la': 'Től', 'Ron': 'Lei', 'Lei': 'Lei', 'Gratuit': 'Ingyenes',
+        'Contactati-ne': 'Lépjen kapcsolatba velünk', 'Estimare': 'Felmérés', 'Variabil': 'Változó',
+        'In functie de': 'Függően', 'lucrare': 'munka',
 
         // Descriptions / Keywords
         'servicii profesionale': 'professzionális szolgáltatások',
+        'Ofer': 'Kínálok', 'Oferim': 'Kínálunk',
         'experienta': 'tapasztalat',
         'garantie': 'garancia',
         'echipa': 'csapat',
@@ -144,16 +178,29 @@ export const translateProviderInfo = (text: string, lang: Language): string => {
         'sector': 'kerület',
         'montaj': 'szerelés',
         'reparatii': 'javítások',
+        'repararea': 'javítása',
         'intretinere': 'karbantartás',
         'asiguram': 'biztosítunk',
         'oferim': 'kínálunk',
         'autorizat': 'engedéllyel rendelkező',
         'modern': 'modern',
         'sigur': 'biztonságos',
+        'intervenții': 'beavatkozások',
+        'instalații': 'berendezések',
+        'țevi': 'csövek',
+        'apă': 'víz',
+        'sistemelor': 'rendszerek',
+        'eficientă': 'hatékony',
+        'corectă': 'megfelelő',
+        'orice': 'bármilyen'
     };
 
     let translated = text;
-    Object.entries(dictionary).forEach(([ro, hu]) => {
+    // Sort keys by length descending to match longer phrases first
+    const sortedKeys = Object.keys(dictionary).sort((a, b) => b.length - a.length);
+
+    sortedKeys.forEach((ro) => {
+        const hu = dictionary[ro];
         const regex = new RegExp(`\\b${ro}\\b`, 'gi');
         translated = translated.replace(regex, hu);
     });
