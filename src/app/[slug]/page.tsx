@@ -2,7 +2,7 @@ import { DynamicPageWrapper } from "@/components/DynamicPageWrapper"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { normalize, COUNTY_MAPPINGS, CATEGORY_SLUG_MAP } from "@/lib/utils"
+import { normalize, COUNTY_MAPPINGS, COUNTY_MAPPINGS_HU, CATEGORY_SLUG_MAP, isHungarianCategory } from "@/lib/utils"
 
 export async function generateStaticParams() {
     const { data: providers } = await supabase
