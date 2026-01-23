@@ -239,6 +239,14 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
         const permGranted = localStorage.getItem('servicii24_permission') === 'granted'
         const permDenied = sessionStorage.getItem('servicii24_permission') === 'denied'
 
+        // [FIX] initialCity from URL MUST take precedence over localStorage
+        if (initialCity) {
+            setDetectedCity(initialCity)
+            setShowLocationPrompt(false)
+            if (permGranted) handleLocationRequest()
+            return
+        }
+
         if (savedCity) {
             setDetectedCity(savedCity)
             setShowLocationPrompt(false)

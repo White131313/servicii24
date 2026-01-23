@@ -1,3 +1,5 @@
+import { Language } from "@/types";
+
 // Maps various slug variants (singular, plural, legacy) to actual DB category names
 export const CATEGORY_SLUG_MAP: Record<string, string> = {
     // Romanian Plurals/Legacy
@@ -48,7 +50,9 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
     'klimaszerelo': 'Klímaszerelő',
     'kutfuras': 'Kútfúrás',
     'kutfurasok': 'Kútfúrás',
-    'foras-kutak': 'Kútfúrás'
+    'foras-kutak': 'Kútfúrás',
+    'sofor': 'Bérelhető sofőr',
+    'soforok': 'Bérelhető sofőr'
 };
 
 export const normalize = (str: string) =>
@@ -114,4 +118,45 @@ export const isHungarianCategory = (cat: string): boolean => {
         'Tető', 'Takarítás', 'Klímaszerelő', 'Kútfúrás'
     ];
     return huCategories.includes(cat);
+};
+// Utility to translate common Romanian professional terms to Hungarian
+export const translateProviderInfo = (text: string, lang: Language): string => {
+    if (lang !== 'hu' || !text) return text;
+
+    const dictionary: Record<string, string> = {
+        // Availability
+        'Luni': 'Hétfő', 'Marti': 'Kedd', 'Miercuri': 'Szerda', 'Joi': 'Csütörtök', 'Vineri': 'Péntek', 'Sambata': 'Szombat', 'Duminica': 'Vasárnap',
+        'Non-stop': 'Non-stop', 'Urgențe': 'Sürgősségi', 'Zilnic': 'Naponta', 'Program': 'Munkarend',
+        'Oricand': 'Bármikor', 'Disponibil': 'Elérhető', 'Interventii': 'Beavatkozások',
+
+        // Price estimates
+        'Pret negociabil': 'Alkuképes ár', 'De la': 'Től', 'Ron': 'Lei', 'Gratuit': 'Ingyenes',
+        'Contactati-ne': 'Lépjen kapcsolatba velünk', 'Estimare': 'Felmérés',
+
+        // Descriptions / Keywords
+        'servicii profesionale': 'professzionális szolgáltatások',
+        'experienta': 'tapasztalat',
+        'garantie': 'garancia',
+        'echipa': 'csapat',
+        'calitate': 'minőség',
+        'ieftin': 'olcsó',
+        'rapid': 'gyors',
+        'sector': 'kerület',
+        'montaj': 'szerelés',
+        'reparatii': 'javítások',
+        'intretinere': 'karbantartás',
+        'asiguram': 'biztosítunk',
+        'oferim': 'kínálunk',
+        'autorizat': 'engedéllyel rendelkező',
+        'modern': 'modern',
+        'sigur': 'biztonságos',
+    };
+
+    let translated = text;
+    Object.entries(dictionary).forEach(([ro, hu]) => {
+        const regex = new RegExp(`\\b${ro}\\b`, 'gi');
+        translated = translated.replace(regex, hu);
+    });
+
+    return translated;
 };

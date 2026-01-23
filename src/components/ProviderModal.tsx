@@ -2,6 +2,7 @@
 
 import { Provider, Language } from "@/types"
 import { getCategoryIcon } from "@/lib/icons"
+import { translateProviderInfo } from "@/lib/utils"
 import { Phone, MessageCircle, MapPin, Clock, X } from "lucide-react"
 
 interface ProviderModalProps {
@@ -12,6 +13,9 @@ interface ProviderModalProps {
 
 export function ProviderModal({ provider, lang, onClose }: ProviderModalProps) {
     const Icon = getCategoryIcon(provider.category)
+    const translatedDescription = translateProviderInfo(provider.description, lang)
+    const translatedAvailability = translateProviderInfo(provider.availability_text, lang)
+    const translatedPrice = translateProviderInfo(provider.price_estimate || '', lang)
 
     const t = {
         ro: {
@@ -72,7 +76,7 @@ export function ProviderModal({ provider, lang, onClose }: ProviderModalProps) {
                                 <Clock size={24} className="text-primary" />
                                 <div>
                                     <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t.availability}</p>
-                                    <p className="font-black text-sm">{provider.availability_text}</p>
+                                    <p className="font-black text-sm">{translatedAvailability}</p>
                                 </div>
                             </div>
                         )}
@@ -82,7 +86,7 @@ export function ProviderModal({ provider, lang, onClose }: ProviderModalProps) {
                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] px-1 italic">{t.details}</p>
                         <div className="bg-muted/20 p-6 rounded-3xl border border-border/30">
                             <p className="text-lg leading-relaxed text-foreground font-medium whitespace-pre-wrap">
-                                {provider.description}
+                                {translatedDescription}
                             </p>
                         </div>
                     </div>
@@ -90,7 +94,7 @@ export function ProviderModal({ provider, lang, onClose }: ProviderModalProps) {
                     {provider.price_estimate && (
                         <div className="mb-10 bg-primary/5 p-6 rounded-3xl border-2 border-primary/10">
                             <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.3em] mb-1">{t.price}</p>
-                            <p className="text-2xl font-black text-primary">{provider.price_estimate}</p>
+                            <p className="text-2xl font-black text-primary">{translatedPrice}</p>
                         </div>
                     )}
                 </div>

@@ -3,10 +3,14 @@
 import { useState } from "react"
 import { Provider, Language } from "@/types"
 import { getCategoryIcon } from "@/lib/icons"
+import { translateProviderInfo } from "@/lib/utils"
 import { Phone, MessageCircle, MapPin, CheckCircle2, Clock, X, ChevronRight } from "lucide-react"
 
 export function ProviderCard({ provider, lang, onOpen }: { provider: Provider, lang: Language, onOpen: () => void }) {
     const Icon = getCategoryIcon(provider.category)
+    const translatedDescription = translateProviderInfo(provider.description, lang)
+    const translatedAvailability = translateProviderInfo(provider.availability_text, lang)
+    const translatedPrice = translateProviderInfo(provider.price_estimate || '', lang)
 
     const t = {
         ro: {
@@ -78,7 +82,7 @@ export function ProviderCard({ provider, lang, onOpen }: { provider: Provider, l
                                 {provider.availability_text && (
                                     <div className="flex items-center gap-1 bg-amber-500/5 text-amber-600 dark:text-amber-400 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-lg border border-amber-500/10 whitespace-nowrap">
                                         <Clock size={10} />
-                                        {provider.availability_text}
+                                        {translatedAvailability}
                                     </div>
                                 )}
                             </div>
@@ -86,13 +90,13 @@ export function ProviderCard({ provider, lang, onOpen }: { provider: Provider, l
                     </div>
 
                     <p className="text-[12px] sm:text-[13px] text-muted-foreground/80 line-clamp-2 min-h-[2.4em] leading-normal sm:leading-relaxed">
-                        {provider.description}
+                        {translatedDescription}
                     </p>
 
                     <div className="mt-3 flex items-center justify-between gap-3">
                         {showPrice ? (
                             <div className="bg-primary/5 px-2 py-1 rounded-lg border border-primary/10 min-w-0 max-w-[60%]">
-                                <p className="text-[11px] font-black text-primary truncate">{provider.price_estimate}</p>
+                                <p className="text-[11px] font-black text-primary truncate">{translatedPrice}</p>
                             </div>
                         ) : <div />}
 
