@@ -1,5 +1,52 @@
-export const slugify = (str: string) =>
+// Maps various slug variants (singular, plural, legacy) to actual DB category names
+export const CATEGORY_SLUG_MAP: Record<string, string> = {
+    // Romanian Plurals/Legacy
+    'lacatusi': 'Lăcătuș',
+    'lacatus': 'Lăcătuș',
+    'electricieni': 'Electrician',
+    'electrician': 'Electrician',
+    'asistenta-rutiera': 'Asistență rutieră',
+    'instalatori': 'Instalator',
+    'instalator': 'Instalator',
+    'soferi-de-inchiriat': 'Șofer de închiriat',
+    'soferi': 'Șofer de închiriat',
+    'veterinari': 'Veterinar',
+    'veterinar': 'Veterinar',
+    'constructii': 'Construcții',
+    'inchirieri-auto': 'Închirieri auto',
+    'meditatii': 'Meditații',
+    'hornari': 'Hornar',
+    'hornar': 'Hornar',
+    'acoperisuri': 'Acoperiș',
+    'acoperis': 'Acoperiș',
+    'curatenie': 'Curățenie',
+    'instalator-ac': 'Instalator A.C',
+    'forare-puturi': 'Forare puțuri',
+
+    // Hungarian/Legacy
+    'epitoipar': 'Építőipar',
+    'allatorvosok': 'Állatorvos',
+    'allatorvos': 'Állatorvos',
+    'korrepetalas': 'Korrepetálás',
+    'villanyszerelo': 'Villanyszerelő',
+    'autokolcsonzo': 'Autókölcsönző',
+    'autokolcsonzes': 'Autókölcsönző',
+    'utmenti-segitseg': 'Útmenti segítség',
+    'automentes': 'Útmenti segítség',
+    'kemenysepro': 'Kéményseprő',
+    'vizvezetek-szerelok': 'Vízvezeték-szerelő',
+    'vizvezetek-szerelo': 'Vízvezeték-szerelő',
+    'berelheto-sofor': 'Bérelhető sofőr',
+    'lakatos': 'Lakatos',
+    'teto': 'Tető',
+    'takaritas': 'Takarítás',
+    'klimaszerelo': 'Klímaszerelő',
+    'kutfuras': 'Kútfúrás'
+};
+
+export const normalize = (str: string) =>
     str.toLowerCase()
+        .trim()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/\s+/g, '-')

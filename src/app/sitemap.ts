@@ -1,57 +1,38 @@
 import { MetadataRoute } from 'next'
 import { supabase } from '@/lib/supabase'
-import { slugify, COUNTY_MAPPINGS_RO, COUNTY_MAPPINGS_HU, isHungarianCategory } from '@/lib/utils'
+import { normalize, COUNTY_MAPPINGS_RO, COUNTY_MAPPINGS_HU, CATEGORY_SLUG_MAP } from '@/lib/utils'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://servicii24.eu'
 
-    // Fetch all unique categories and cities from the database
+    // Fetch all unique cities from the database
     const { data: providers } = await supabase
         .from('providers')
-        .select('category, city')
+        .select('city')
 
-    const categorySlugs = new Set<string>()
+    const categorySlugs = new Set(Object.keys(CATEGORY_SLUG_MAP))
     const citySlugs = new Set<string>()
     const roCountySlugs = Object.keys(COUNTY_MAPPINGS_RO)
     const huCountySlugs = Object.keys(COUNTY_MAPPINGS_HU)
     const combinedSlugs = new Set<string>()
 
     providers?.forEach(p => {
-        const catSlug = slugify(p.category)
-        const citySlug = slugify(p.city)
-        if (catSlug) categorySlugs.add(catSlug)
+        const citySlug = normalize(p.city)
         if (citySlug) citySlugs.add(citySlug)
 
-        // Add combination for city (cities are often used in both, but we focus on counties for language separation)
-        if (catSlug && citySlug) combinedSlugs.add(`${catSlug}-${citySlug}`)
-
-        // Add combinations for counties based on category language
-        const isHU = isHungarianCategory(p.category)
-        const relevantCounties = isHU ? huCountySlugs : roCountySlugs
-
-        relevantCounties.forEach(county => {
-            if (catSlug) combinedSlugs.add(`${catSlug}-${county}`)
+        // Add combinations for all category variants
+        Object.keys(CATEGORY_SLUG_MAP).forEach(catSlug => {
+            if (citySlug) combinedSlugs.add(`${catSlug}-${citySlug}`)
         })
     })
 
-    // Legacy URLs from user's sitemap to ensure continuity
-    const legacySlugs = [
-        'acoperisuri', 'acoperisuri-brasov', 'acoperisuri-cluj', 'acoperisuri-covasna', 'acoperisuri-harghita', 'acoperisuri-mures',
-        'allatorvos-hargita', 'allatorvos-maros', 'allatorvosok', 'allatorvosok-brasso', 'alte-servicii',
-        'asistenta-rutiera', 'asistenta-rutiera-brasov', 'asistenta-rutiera-cluj', 'asistenta-rutiera-covasna', 'asistenta-rutiera-harghita', 'asistenta-rutiera-mures',
-        'autokolcsonzes-brasso', 'autokolcsonzes-hargita', 'autokolcsonzes-marosvasarhely', 'autokolcsonzes-sepsiszentgyorgy',
-        'automentes', 'automentes-brasso', 'automentes-hargita', 'automentes-kovaszna', 'automentes-maros',
-        'brasov', 'brasso', 'cluj', 'harghita', 'hargita', 'mures', 'maros', 'covasna', 'kovaszna', 'sfantu-gheorghe', 'sepsiszentgyorgy',
-        'electricieni', 'electricieni-brasov', 'electricieni-cluj', 'electricieni-harghita', 'electricieni-mures', 'electricieni-sfantu-gheorghe',
-        'instalatori', 'instalatori-brasov', 'instalatori-cluj', 'instalatori-harghita', 'instalatori-targu-mures',
-        'lacatusi', 'lacatusi-brasov', 'lacatusi-cluj', 'lacatusi-harghita', 'lacatusi-mures',
-        'soferi-brasov', 'soferi-cluj', 'soferi-covasna', 'soferi-harghita', 'soferi-mures',
-        'veterinari', 'veterinari-brasov', 'veterinari-cluj', 'veterinari-harghita', 'veterinari-mures',
-        'vizvezetek-szerelok', 'vizvezetek-szerelok-brasso', 'vizvezetek-szerelok-hargita', 'vizvezetek-szerelok-maros'
-    ]
+    // Add county-category combinations
+    Object.keys(CATEGORY_SLUG_MAP).forEach(catSlug => {
+        roCountySlugs.forEach(county => combinedSlugs.add(`${catSlug}-${county}`))
+        huCountySlugs.forEach(county => combinedSlugs.add(`${catSlug}-${county}`))
+    })
 
     const allSlugs = new Set([
-        ...legacySlugs,
         ...Array.from(categorySlugs),
         ...Array.from(citySlugs),
         ...roCountySlugs,

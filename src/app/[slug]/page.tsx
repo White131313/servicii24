@@ -2,7 +2,7 @@ import { DynamicPageWrapper } from "@/components/DynamicPageWrapper"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { slugify, COUNTY_MAPPINGS } from "@/lib/utils"
+import { normalize, COUNTY_MAPPINGS, CATEGORY_SLUG_MAP } from "@/lib/utils"
 
 export async function generateStaticParams() {
     const { data: providers } = await supabase
@@ -11,23 +11,21 @@ export async function generateStaticParams() {
 
     if (!providers) return []
 
-    const categorySlugs = new Set<string>()
+    const categorySlugs = new Set<string>(Object.keys(CATEGORY_SLUG_MAP))
     const citySlugs = new Set<string>()
     const countySlugs = new Set<string>(Object.keys(COUNTY_MAPPINGS))
     const combinedSlugs = new Set<string>()
 
     providers.forEach(p => {
-        const catSlug = slugify(p.category)
-        const citySlug = slugify(p.city)
-        if (catSlug) categorySlugs.add(catSlug)
+        const citySlug = normalize(p.city)
         if (citySlug) citySlugs.add(citySlug)
 
-        // Add combination for city
-        if (catSlug && citySlug) combinedSlugs.add(`${catSlug}-${citySlug}`)
-
-        // Add combinations for counties
-        countySlugs.forEach(county => {
-            if (catSlug) combinedSlugs.add(`${catSlug}-${county}`)
+        // Add combinations for all category slug variants
+        Object.keys(CATEGORY_SLUG_MAP).forEach(catSlug => {
+            if (citySlug) combinedSlugs.add(`${catSlug}-${citySlug}`)
+            countySlugs.forEach(county => {
+                combinedSlugs.add(`${catSlug}-${county}`)
+            })
         })
     })
 
@@ -50,18 +48,16 @@ async function getRouteData(slug: string) {
 
     if (!providers) return null
 
-    const categories = Array.from(new Set(providers.map(p => p.category)))
     const cities = Array.from(new Set(providers.map(p => p.city)))
     const counties = Object.keys(COUNTY_MAPPINGS)
 
-    // 1. Check if it's a category
-    const matchedCategory = categories.find(c => slugify(c) === slug)
-    if (matchedCategory) {
-        return { category: matchedCategory }
+    // 1. Check if it's a category slug
+    if (CATEGORY_SLUG_MAP[slug]) {
+        return { category: CATEGORY_SLUG_MAP[slug] }
     }
 
     // 2. Check if it's a city or county
-    const matchedCity = cities.find(c => slugify(c) === slug)
+    const matchedCity = cities.find(c => normalize(c) === slug)
     if (matchedCity) {
         return { city: matchedCity }
     }
@@ -70,24 +66,25 @@ async function getRouteData(slug: string) {
         return { city: matchedCounty, isCounty: true }
     }
 
-    // 3. Check if it's a category-city or category-county combination
-    const sortedCategories = [...categories].sort((a, b) => slugify(b).length - slugify(a).length)
+    // 3. Check if it's a category-location combination
+    // Sort keys by length descending to match longest possible category first (e.g. asistenta-rutiera before asistenta)
+    const sortedCatSlugs = Object.keys(CATEGORY_SLUG_MAP).sort((a, b) => b.length - a.length)
 
-    for (const cat of sortedCategories) {
-        const catSlug = slugify(cat)
+    for (const catSlug of sortedCatSlugs) {
         if (slug.startsWith(catSlug + '-')) {
             const potentialLocSlug = slug.slice(catSlug.length + 1)
+            const actualCategory = CATEGORY_SLUG_MAP[catSlug]
 
             // Try city match
-            const matchedCityForCat = cities.find(c => slugify(c) === potentialLocSlug)
+            const matchedCityForCat = cities.find(c => normalize(c) === potentialLocSlug)
             if (matchedCityForCat) {
-                return { category: cat, city: matchedCityForCat }
+                return { category: actualCategory, city: matchedCityForCat }
             }
 
             // Try county match
             const matchedCountyForCat = counties.find(c => c === potentialLocSlug)
             if (matchedCountyForCat) {
-                return { category: cat, city: matchedCountyForCat, isCounty: true }
+                return { category: actualCategory, city: matchedCountyForCat, isCounty: true }
             }
         }
     }
@@ -103,7 +100,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
 
     const data = await getRouteData(slug)
-    if (!data) return { title: 'Nu a fost găsit | Servicii24' }
+    if (!data) return { title: 'Servicii Profesionale | Servicii24' }
 
     const isCounty = data.isCounty;
     const locName = data.city || ''
@@ -112,24 +109,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
     if (data.category && data.city) {
         return {
-            title: `${data.category} în ${locWithContext} - Servicii Profesionale | Servicii24`,
-            description: `Găsește cei mai buni specialiști în ${data.category} din ${locWithContext}. Servicii verificate și contact direct pe Servicii24.eu.`,
+            title: `${data.category} în ${locWithContext} - Urgențe Non-Stop | Servicii24`,
+            description: `Găsește rapid un specialist în ${data.category} din ${locWithContext}. Intervenții de urgență, profesioniști autorizați și contact direct 24/7 pe Servicii24.eu.`,
             alternates: {
                 canonical: `https://servicii24.eu/${slug}`,
             }
         }
     } else if (data.category) {
         return {
-            title: `${data.category} - Servicii Profesionale | Servicii24`,
-            description: `Găsește specialiști în ${data.category}. Servicii verificate, contact direct și disponibilitate imediată pe Servicii24.eu.`,
+            title: `${data.category} - Intervenție Rapidă & Urgențe | Servicii24`,
+            description: `Ai nevoie de un ${data.category}? Găsește specialiști verificați pentru urgențe și servicii profesionale. Contact direct și disponibilitate imediată pe Servicii24.eu.`,
             alternates: {
                 canonical: `https://servicii24.eu/${slug}`,
             }
         }
     } else if (data.city) {
         return {
-            title: `Servicii Profesionale în ${locWithContext} | Servicii24`,
-            description: `Descoperă toți meșterii și profesioniștii din ${locWithContext}. Servicii de calitate, verificate, la un click distanță.`,
+            title: `Servicii Profesionale în ${locWithContext} - Urgențe 24/7 | Servicii24`,
+            description: `Descoperă toți meșterii și profesioniștii din ${locWithContext}. Urgențe, reparații și servicii de calitate, verificate, disponibile imediat pe Servicii24.eu.`,
             alternates: {
                 canonical: `https://servicii24.eu/${slug}`,
             }
