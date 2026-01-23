@@ -124,36 +124,42 @@ export const isHungarianCategory = (cat: string): boolean => {
 export const translateProviderInfo = (text: string, lang: Language): string => {
     if (lang !== 'hu' || !text) return text;
 
-    // 1. Try to detect if there's already a Hungarian section in the text.
-    // Heuristic: Splitting by newlines or sentences and looking for HU-specific characters.
-    const sections = text.split(/\n/);
-    const huSpecialChars = /[őűŐŰáéíóöúüÁÉÍÓÖÚÜ]/;
+    const huChars = /[áéíóöőúüűÁÉÍÓÖŐÚÜŰ]/g;
+    const roChars = /[ăâîșțĂÂÎȘȚ]/g;
+    const huKeywords = /\b(és|a|az|egy|van|lesz|vagyok|vagyunk|nyújtok|biztosítunk|kínálunk|szolgáltatás|szerelés|javítás|helyszín|időpont|elérhetőség)\b/i;
 
-    let huSections = sections.filter(s => huSpecialChars.test(s));
+    const evaluateSection = (s: string) => {
+        const huCount = (s.match(huChars) || []).length;
+        const roCount = (s.match(roChars) || []).length;
+        const hasHuKeywords = huKeywords.test(s);
+        const hasExtraHu = /[őűŐŰ]/.test(s); // These are unique to HU
 
-    // If we have distinct sections and some are clearly Hungarian, use only those.
-    if (huSections.length > 0 && huSections.length < sections.length) {
-        return huSections.join('\n').trim();
-    }
+        let score = huCount * 2 - roCount * 3;
+        if (hasHuKeywords) score += 10;
+        if (hasExtraHu) score += 20;
+        return score;
+    };
 
-    // 2. If no newline separation, try sentence-based detection
-    const sentences = text.split(/([.!?]\s+)/);
-    let detectedHuSentences: string[] = [];
-    let hasRoSentences = false;
+    // 1. Try to split by common separators (newline or sentence boundaries with capital letters)
+    const sections = text.split(/\n|(?<=[.!?])\s*(?=[A-ZŐŰÁÉÍÓÖÚÜ])/);
+    let bestSection = "";
+    let maxScore = -100;
 
-    for (let i = 0; i < sentences.length; i++) {
-        if (huSpecialChars.test(sentences[i])) {
-            detectedHuSentences.push(sentences[i]);
-        } else if (sentences[i].trim().length > 10) {
-            hasRoSentences = true;
+    for (const section of sections) {
+        if (section.trim().length < 5) continue;
+        const score = evaluateSection(section);
+        if (score > maxScore) {
+            maxScore = score;
+            bestSection = section;
         }
     }
 
-    if (detectedHuSentences.length > 0 && hasRoSentences) {
-        return detectedHuSentences.join('').trim();
+    // If we found a section that is clearly Hungarian, return it.
+    if (maxScore > 5) {
+        return (bestSection || text).trim();
     }
 
-    // 3. Fallback: Dictionary-based word/phrase replacement
+    // 2. Fallback: Dictionary-based word/phrase replacement
     const dictionary: Record<string, string> = {
         // Availability
         'Luni': 'Hétfő', 'Marti': 'Kedd', 'Miercuri': 'Szerda', 'Joi': 'Csütörtök', 'Vineri': 'Péntek', 'Sambata': 'Szombat', 'Duminica': 'Vasárnap',
