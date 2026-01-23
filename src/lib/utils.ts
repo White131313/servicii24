@@ -142,21 +142,19 @@ export const translateProviderInfo = (text: string, lang: Language): string => {
 
     // 1. Try to split by common separators (newline or sentence boundaries with capital letters)
     const sections = text.split(/\n|(?<=[.!?])\s*(?=[A-ZŐŰÁÉÍÓÖÚÜ])/);
-    let bestSection = "";
-    let maxScore = -100;
+    let huParts: string[] = [];
 
     for (const section of sections) {
         if (section.trim().length < 5) continue;
         const score = evaluateSection(section);
-        if (score > maxScore) {
-            maxScore = score;
-            bestSection = section;
+        if (score > 5) {
+            huParts.push(section.trim());
         }
     }
 
-    // If we found a section that is clearly Hungarian, return it.
-    if (maxScore > 5) {
-        return (bestSection || text).trim();
+    // If we found sections that are clearly Hungarian, return them joined.
+    if (huParts.length > 0) {
+        return huParts.join(' ').trim();
     }
 
     // 2. Fallback: Dictionary-based word/phrase replacement
