@@ -8,18 +8,20 @@ import { Language } from "@/types"
 interface DynamicPageWrapperProps {
     initialCategory?: string;
     initialCity?: string;
+    initialLang?: Language;
 }
 
-export function DynamicPageWrapper({ initialCategory, initialCity }: DynamicPageWrapperProps) {
-    const [lang, setLang] = useState<Language>('ro')
+export function DynamicPageWrapper({ initialCategory, initialCity, initialLang }: DynamicPageWrapperProps) {
+    const [lang, setLang] = useState<Language>(initialLang || 'ro')
 
-    // Language detection
+    // Initial language detection (only if no initialLang provided)
     useEffect(() => {
+        if (initialLang) return;
         const browserLang = navigator.language.toLowerCase()
         if (browserLang.startsWith('hu')) {
             setLang('hu')
         }
-    }, [])
+    }, [initialLang])
 
     return (
         <div className="min-h-screen bg-background">

@@ -28,20 +28,27 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
     'allatorvosok': 'Állatorvos',
     'allatorvos': 'Állatorvos',
     'korrepetalas': 'Korrepetálás',
+    'villanyszerelok': 'Villanyszerelő',
     'villanyszerelo': 'Villanyszerelő',
     'autokolcsonzo': 'Autókölcsönző',
     'autokolcsonzes': 'Autókölcsönző',
     'utmenti-segitseg': 'Útmenti segítség',
     'automentes': 'Útmenti segítség',
+    'kemenyseprok': 'Kéményseprő',
     'kemenysepro': 'Kéményseprő',
     'vizvezetek-szerelok': 'Vízvezeték-szerelő',
     'vizvezetek-szerelo': 'Vízvezeték-szerelő',
+    'berelheto-soforok': 'Bérelhető sofőr',
     'berelheto-sofor': 'Bérelhető sofőr',
+    'lakatosok': 'Lakatos',
     'lakatos': 'Lakatos',
+    'tetok': 'Tető',
     'teto': 'Tető',
     'takaritas': 'Takarítás',
     'klimaszerelo': 'Klímaszerelő',
-    'kutfuras': 'Kútfúrás'
+    'kutfuras': 'Kútfúrás',
+    'kutfurasok': 'Kútfúrás',
+    'foras-kutak': 'Kútfúrás'
 };
 
 export const normalize = (str: string) =>
@@ -99,7 +106,12 @@ export const COUNTY_MAPPINGS: Record<string, string[]> = {
 
 // Heuristic to detect if a category string is Hungarian
 export const isHungarianCategory = (cat: string): boolean => {
-    const huKeywords = ['tetok', 'szerelok', 'lakatos', 'allatorvos', 'autokolcsonzes', 'automentes', 'villanyszerelo', 'szolgaltatasok'];
-    const slug = cat.toLowerCase();
-    return huKeywords.some(kw => slug.includes(kw));
+    if (!cat) return false;
+    const huCategories = [
+        'Építőipar', 'Állatorvos', 'Korrepetálás', 'Villanyszerelő',
+        'Autókölcsönző', 'Útmenti segítség', 'Kéményseprő',
+        'Vízvezeték-szerelő', 'Bérelhető sofőr', 'Lakatos',
+        'Tető', 'Takarítás', 'Klímaszerelő', 'Kútfúrás'
+    ];
+    return huCategories.includes(cat);
 };
