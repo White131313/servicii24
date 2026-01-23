@@ -61,8 +61,6 @@ async function getRouteData(slug: string) {
     // 2. Check if it's a city or county
     const matchedCity = cities.find(c => normalize(c) === slug)
     if (matchedCity) {
-        // Find if city has more HU providers or RO providers (simple heuristic)
-        // Or check COUNTY_MAPPINGS_HU
         const isHU = Object.keys(COUNTY_MAPPINGS_HU).includes(slug) ||
             ['brasso', 'csikszereda', 'sepsiszentgyorgy', 'kolozsvar', 'marosvasarhely'].includes(slug);
         return { city: matchedCity, lang: isHU ? 'hu' : 'ro' }
@@ -112,52 +110,89 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const isHU = data.lang === 'hu';
     const isCounty = data.isCounty;
     const locName = data.city || ''
-    const capitalizedLoc = locName.charAt(0).toUpperCase() + locName.slice(1)
+    const capitalizationLoc = locName.charAt(0).toUpperCase() + locName.slice(1)
+    const fullLoc = isCounty
+        ? (isHU ? `${capitalizationLoc} megye` : `Județul ${capitalizationLoc}`)
+        : capitalizationLoc;
 
-    let locDisplay = capitalizedLoc;
-    if (isCounty) {
-        locDisplay = isHU ? `${capitalizedLoc} megye` : `Județul ${capitalizedLoc}`;
-    }
+    const baseUrl = 'https://servicii24.eu';
+    const canonical = `${baseUrl}/${slug}`;
 
     if (data.category && data.city) {
+        const title = isHU
+            ? `${data.category} ${fullLoc} - Sürgősségi Non-Stop 24/7 | Servicii24`
+            : `${data.category} în ${fullLoc} - Urgențe Non-Stop 24/7 | Servicii24`;
+        const description = isHU
+            ? `Gyors ${data.category} segítség ${fullLoc} területén. Sürgősségi beavatkozások, ellenőrzött szakemberek és közvetlen kapcsolat 24/7. Hívja most!`
+            : `Servicii rapide de ${data.category} în ${fullLoc}. Intervenții de urgență, meșteri verificați și contact direct 24/7. Sună acum!`;
+
         return {
-            title: isHU
-                ? `${data.category} ${locDisplay} területén - Sürgősségi Non-Stop | Servicii24`
-                : `${data.category} în ${locDisplay} - Urgențe Non-Stop | Servicii24`,
-            description: isHU
-                ? `Találjon gyorsan ${data.category} szakembert ${locDisplay} területén. Sürgősségi beavatkozások, ellenőrzött profik és közvetlen kapcsolat 24/7 a Servicii24.eu oldalon.`
-                : `Găsește rapid un specialist în ${data.category} din ${locDisplay}. Intervenții de urgență, profesioniști autorizați și contact direct 24/7 pe Servicii24.eu.`,
-            alternates: {
-                canonical: `https://servicii24.eu/${slug}`,
+            title,
+            description,
+            alternates: { canonical },
+            openGraph: {
+                title,
+                description,
+                url: canonical,
+                siteName: 'Servicii24',
+                locale: isHU ? 'hu_HU' : 'ro_RO',
+                type: 'website',
+            },
+            twitter: {
+                card: 'summary_large_image',
+                title,
+                description,
             }
         }
     } else if (data.category) {
+        const title = isHU
+            ? `${data.category} - Gyors Beavatkozás & Sürgősségek | Servicii24`
+            : `${data.category} - Intervenție Rapidă & Urgențe | Servicii24`;
+        const description = isHU
+            ? `Profesionális ${data.category} szolgáltatások. Találjon ellenőrzött mestereket sürgősségi esetekre és azonnali javításokra a Servicii24-en.`
+            : `Servicii profesionale de ${data.category}. Găsește specialiști verificați pentru urgențe și reparații imediate pe Servicii24.eu.`;
+
         return {
-            title: isHU
-                ? `${data.category} - Gyors Beavatkozás & Sürgősségek | Servicii24`
-                : `${data.category} - Intervenție Rapidă & Urgențe | Servicii24`,
-            description: isHU
-                ? `${data.category} szakembert keres? Találjon ellenőrzött mestereket sürgősségi esetekre és professzionális szolgáltatásokra. Közvetlen kapcsolat a Servicii24.eu-n.`
-                : `Ai nevoie de un ${data.category}? Găsește specialiști verificați pentru urgențe și servicii profesionale. Contact direct și disponibilitate imediată pe Servicii24.eu.`,
-            alternates: {
-                canonical: `https://servicii24.eu/${slug}`,
+            title,
+            description,
+            alternates: { canonical },
+            openGraph: {
+                title,
+                description,
+                url: canonical,
+                siteName: 'Servicii24',
+                locale: isHU ? 'hu_HU' : 'ro_RO',
+                type: 'website',
             }
         }
     } else if (data.city) {
+        const title = isHU
+            ? `Mesteremberek és Szolgáltatások ${fullLoc} - 24/7 Sürgősségek | Servicii24`
+            : `Meseriași și Servicii Profesionale în ${fullLoc} - Urgențe 24/7 | Servicii24`;
+        const description = isHU
+            ? `Az összes professzionális szolgáltatás és mesterember ${fullLoc} területén. Sürgősségi javítások, Non-Stop elérhetőség és közvetlen kapcsolat.`
+            : `Toate serviciile profesionale și meseriașii din ${fullLoc}. Urgențe, reparații Non-Stop și contact direct cu specialiști verificați.`;
+
         return {
-            title: isHU
-                ? `Professzionális szolgáltatások ${locDisplay} területén - 24/7 Sürgősségek | Servicii24`
-                : `Servicii Profesionale în ${locDisplay} - Urgențe 24/7 | Servicii24`,
-            description: isHU
-                ? `Fedezze fel az összes szakembert ${locDisplay} területén. Sürgősségi javítások és minőségi szolgáltatások a Servicii24.eu oldalon.`
-                : `Descoperă toți meșterii și profesioniștii din ${locDisplay}. Urgențe, reparații și servicii de calitate, verificate, disponibile imediat pe Servicii24.eu.`,
-            alternates: {
-                canonical: `https://servicii24.eu/${slug}`,
+            title,
+            description,
+            alternates: { canonical },
+            openGraph: {
+                title,
+                description,
+                url: canonical,
+                siteName: 'Servicii24',
+                locale: isHU ? 'hu_HU' : 'ro_RO',
+                type: 'website',
             }
         }
     }
 
-    return {}
+    return {
+        title: 'Servicii24 - Găsește Meseriași și Servicii Profesionale',
+        description: 'Cea mai rapidă platformă pentru a găsi specialiști și meseriași pentru urgențe 24/7.',
+        alternates: { canonical: baseUrl }
+    }
 }
 
 export default async function SlugPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -170,14 +205,41 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
     const data = await getRouteData(slug)
     if (!data) return notFound()
 
+    const isHU = data.lang === 'hu';
+    const locName = data.city || ''
+    const capitalizationLoc = locName.charAt(0).toUpperCase() + locName.slice(1)
+    const fullLoc = data.isCounty
+        ? (isHU ? `${capitalizationLoc} megye` : `Județul ${capitalizationLoc}`)
+        : capitalizationLoc;
+
     const jsonLd = {
         "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        "name": data.category && data.city ? `${data.category} - ${data.city}` : data.category || data.city,
+        "@type": "Service",
+        "name": data.category || "Servicii Profesionale",
+        "provider": {
+            "@type": "Organization",
+            "name": "Servicii24"
+        },
         "description": data.category && data.city
-            ? `Listă cu cei mai buni specialiști în ${data.category} din ${data.city}.`
-            : `Servicii profesionale de ${data.category || data.city}.`,
-        "url": `https://servicii24.eu/${slug}`
+            ? (isHU ? `${data.category} szolgáltatások ${fullLoc} területén.` : `Servicii de ${data.category} în ${fullLoc}.`)
+            : (isHU ? `Professzionális szolgáltatások és mesteremberek.` : `Servicii profesionale și meseriași.`),
+        "areaServed": data.city ? {
+            "@type": "Place",
+            "name": fullLoc
+        } : undefined,
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": data.category || "Servicii",
+            "itemListElement": [
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": data.category || "Servicii Profesionale"
+                    }
+                }
+            ]
+        }
     }
 
     return (
