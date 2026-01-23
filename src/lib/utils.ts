@@ -1,8 +1,7 @@
 import { Language } from "@/types";
 
-// Maps various slug variants (singular, plural, legacy) to actual DB category names
-export const CATEGORY_SLUG_MAP: Record<string, string> = {
-    // Romanian Plurals/Legacy
+// Romanian Plurals/Legacy
+export const CATEGORY_SLUG_MAP_RO: Record<string, string> = {
     'lacatusi': 'Lăcătuș',
     'lacatus': 'Lăcătuș',
     'electricieni': 'Electrician',
@@ -23,9 +22,11 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
     'acoperis': 'Acoperiș',
     'curatenie': 'Curățenie',
     'instalator-ac': 'Instalator A.C',
-    'forare-puturi': 'Forare puțuri',
+    'forare-puturi': 'Forare puțuri'
+};
 
-    // Hungarian/Legacy
+// Hungarian/Legacy
+export const CATEGORY_SLUG_MAP_HU: Record<string, string> = {
     'epitoipar': 'Építőipar',
     'allatorvosok': 'Állatorvos',
     'allatorvos': 'Állatorvos',
@@ -53,6 +54,12 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
     'foras-kutak': 'Kútfúrás',
     'sofor': 'Bérelhető sofőr',
     'soforok': 'Bérelhető sofőr'
+};
+
+// Maps various slug variants (singular, plural, legacy) to actual DB category names
+export const CATEGORY_SLUG_MAP: Record<string, string> = {
+    ...CATEGORY_SLUG_MAP_RO,
+    ...CATEGORY_SLUG_MAP_HU
 };
 
 export const normalize = (str: string) =>
