@@ -7,8 +7,8 @@ import Script from "next/script";
 const inter = Inter({ subsets: ["latin", "latin-ext"] });
 
 export const metadata: Metadata = {
-  title: "Servicii24 - Găsește Meseriași și Servicii Profesionale",
-  description: "Platformă premium pentru găsirea serviciilor profesionale în România și Ungaria. Meseriași verificați, asistență rutieră, instalatori și multe altele.",
+  title: "Servicii24 - Meseriași pentru Urgențe Non-Stop în zona ta",
+  description: "Ai o urgență? Găsește rapid specialiști și meseriași din zona ta. Intervenții non-stop 24/7 și contact direct pentru soluții imediate pe Servicii24.eu.",
   icons: {
     icon: '/icon.png',
     apple: '/icon.png',
