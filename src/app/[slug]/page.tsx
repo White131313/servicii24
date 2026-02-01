@@ -48,6 +48,7 @@ async function getRouteData(slug: string) {
 
     if (!providers) return null
 
+    if (slug === 'contact') return null
     const cities = Array.from(new Set(providers.map(p => p.city)))
     const counties = Object.keys(COUNTY_MAPPINGS)
 
@@ -100,7 +101,7 @@ async function getRouteData(slug: string) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params
 
-    if (slug.includes('.') || slug === 'sitemap' || slug === 'robots' || slug === 'dashboard') {
+    if (slug.includes('.') || slug === 'sitemap' || slug === 'robots' || slug === 'dashboard' || slug === 'contact') {
         return {}
     }
 
