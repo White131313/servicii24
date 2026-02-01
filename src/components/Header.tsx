@@ -62,6 +62,18 @@ export function Header({
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-4 font-semibold">
+                    {/* Mobile Professional Link */}
+                    <Link
+                        href={`/dashboard?lang=${lang}`}
+                        className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted transition-all active:scale-90"
+                        title={lang === 'ro' ? 'Sunt meseriaș' : 'Szakember vagyok'}
+                    >
+                        <div className="relative">
+                            <User size={20} strokeWidth={2.2} />
+                            <Wrench size={10} strokeWidth={3} className="absolute -right-1 -bottom-0.5 rotate-[15deg] text-muted-foreground fill-muted-foreground bg-muted p-[0.5px] rounded-full" />
+                        </div>
+                    </Link>
+
                     {/* Mobile Contact Icon */}
                     <Link
                         href={`/contact?lang=${lang}`}
