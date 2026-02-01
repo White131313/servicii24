@@ -2,7 +2,7 @@ import { DynamicPageWrapper } from "@/components/DynamicPageWrapper"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { normalize, COUNTY_MAPPINGS, COUNTY_MAPPINGS_HU, CATEGORY_SLUG_MAP, isHungarianCategory } from "@/lib/utils"
+import { normalize, COUNTY_MAPPINGS, COUNTY_MAPPINGS_HU, CATEGORY_SLUG_MAP, isHungarianCategory, translateCategory, translateCity } from "@/lib/utils"
 
 export async function generateStaticParams() {
     const { data: providers } = await supabase
@@ -109,22 +109,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
     const isHU = data.lang === 'hu';
     const isCounty = data.isCounty;
-    const locName = data.city || ''
-    const capitalizationLoc = locName.charAt(0).toUpperCase() + locName.slice(1)
+
+    const currentCategory = translateCategory(data.category, isHU ? 'hu' : 'ro');
+    const currentCity = translateCity(data.city, isHU ? 'hu' : 'ro');
+
     const fullLoc = isCounty
-        ? (isHU ? `${capitalizationLoc} megye` : `Județul ${capitalizationLoc}`)
-        : capitalizationLoc;
+        ? (isHU ? `${currentCity} megye` : `Județul ${currentCity}`)
+        : currentCity;
 
     const baseUrl = 'https://servicii24.eu';
     const canonical = `${baseUrl}/${slug}`;
 
     if (data.category && data.city) {
         const title = isHU
-            ? `${data.category} ${fullLoc} - Sürgősségi Non-Stop 24/7 | Servicii24`
-            : `${data.category} în ${fullLoc} - Urgențe Non-Stop 24/7 | Servicii24`;
+            ? `${currentCategory} ${fullLoc} - Sürgősségi 24/7 | Profi Szakemberek | Servicii24`
+            : `${currentCategory} în ${fullLoc} - Urgență 24/7 | Meseriași Verificați | Servicii24`;
         const description = isHU
-            ? `Gyors ${data.category} segítség ${fullLoc} területén. Sürgősségi beavatkozások, ellenőrzött szakemberek és közvetlen kapcsolat 24/7. Hívja most!`
-            : `Servicii rapide de ${data.category} în ${fullLoc}. Intervenții de urgență, meșteri verificați și contact direct 24/7. Sună acum!`;
+            ? `Azonnali ${currentCategory} segítség ${fullLoc} területén. SOS beavatkozások, minősített szakértők és közvetlen elérhetőség a nap 24 órájában. Találjon megoldást most!`
+            : `Servicii profesionale de ${currentCategory} în ${fullLoc}. Intervenții ultra-rapide, meșteri verificați și contact direct non-stop. Rezolvă problema acum!`;
 
         return {
             title,

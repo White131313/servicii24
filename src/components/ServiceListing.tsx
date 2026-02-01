@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { Search, MapPin, Loader2, Clock, BadgeCheck, Wallet, Star, ChevronLeft, ChevronRight, RefreshCcw } from "lucide-react"
 import { ProviderCard } from "./ProviderCard"
 import { ProviderModal } from "./ProviderModal"
-import { CITY_NAME_MAPPINGS, COUNTY_MAPPINGS } from "@/lib/utils"
+import { CITY_NAME_MAPPINGS, COUNTY_MAPPINGS, translateCategory, translateCity } from "@/lib/utils"
 
 interface ServiceListingProps {
     initialCategory?: string;
@@ -340,7 +340,11 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
             <div className="flex flex-col items-center text-center mb-8 sm:mb-12">
                 <h1 className="text-4xl sm:text-6xl font-black mb-4 tracking-tight leading-[1.1]">
                     {selectedCategory && detectedCity
-                        ? <span className="text-gradient">{lang === 'hu' ? `${selectedCategory} în ${detectedCity}`.replace(' în ', ' ') : `${selectedCategory} în ${detectedCity}`}</span>
+                        ? <span className="text-gradient">
+                            {lang === 'hu'
+                                ? `${translateCategory(selectedCategory, 'hu')} ${translateCity(detectedCity, 'hu')}`
+                                : `${translateCategory(selectedCategory, 'ro')} în ${translateCity(detectedCity, 'ro')}`}
+                        </span>
                         : (lang === 'ro' ? (
                             <>
                                 Ai o urgență?<br />

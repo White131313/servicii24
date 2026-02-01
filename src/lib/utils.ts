@@ -115,6 +115,52 @@ export const COUNTY_MAPPINGS: Record<string, string[]> = {
     ...COUNTY_MAPPINGS_HU
 };
 
+const CATEGORY_TRANSLATIONS: Record<string, { ro: string, hu: string }> = {
+    'Lăcătuș': { ro: 'Lăcătuș', hu: 'Lakatos' },
+    'Electrician': { ro: 'Electrician', hu: 'Villanyszerelő' },
+    'Asistență rutieră': { ro: 'Asistență rutieră', hu: 'Útmenti segítség' },
+    'Instalator': { ro: 'Instalator', hu: 'Vízvezeték-szerelő' },
+    'Șofer de închiriat': { ro: 'Șofer de închiriat', hu: 'Bérelhető sofőr' },
+    'Veterinar': { ro: 'Veterinar', hu: 'Állatorvos' },
+    'Construcții': { ro: 'Construcții', hu: 'Építőipar' },
+    'Închirieri auto': { ro: 'Închirieri auto', hu: 'Autókölcsönző' },
+    'Meditații': { ro: 'Meditații', hu: 'Korrepetálás' },
+    'Hornar': { ro: 'Hornar', hu: 'Kéményseprő' },
+    'Acoperiș': { ro: 'Acoperiș', hu: 'Tető' },
+    'Curățenie': { ro: 'Curățenie', hu: 'Takarítás' },
+    'Instalator A.C': { ro: 'Instalator A.C', hu: 'Klímaszerelő' },
+    'Forare puțuri': { ro: 'Forare puțuri', hu: 'Kútfúrás' }
+};
+
+export const translateCategory = (cat: string | undefined, lang: 'ro' | 'hu'): string => {
+    if (!cat) return '';
+    const entry = Object.values(CATEGORY_TRANSLATIONS).find(t => t.ro === cat || t.hu === cat);
+    if (entry) return entry[lang];
+    return cat;
+};
+
+export const translateCity = (city: string | undefined, lang: 'ro' | 'hu'): string => {
+    if (!city) return '';
+    if (lang === 'ro') {
+        const entry = Object.values(CITY_NAME_MAPPINGS).find(list => list.includes(city.toLowerCase()));
+        return entry ? (entry[0].charAt(0).toUpperCase() + entry[0].slice(1)) : city;
+    }
+    // For HU, check mappings
+    const normalized = city.toLowerCase();
+    if (normalized === 'brasov' || normalized === 'brasso') return 'Brassó';
+    if (normalized === 'miercurea ciuc' || normalized === 'csikszereda') return 'Csíkszereda';
+    if (normalized === 'sfantu gheorghe' || normalized === 'sepsiszentgyorgy') return 'Sepsiszentgyörgy';
+    if (normalized === 'targu mures' || normalized === 'marosvasarhely') return 'Marosvásárhely';
+    if (normalized === 'cluj-napoca' || normalized === 'kolozsvar' || normalized === 'cluj') return 'Kolozsvár';
+    if (normalized === 'gheorgheni' || normalized === 'gyergyoszentmiklos') return 'Gyergyószentmiklós';
+    if (normalized === 'odorheiu secuiesc' || normalized === 'szekelyudvarhely') return 'Székelyudvarhely';
+    if (normalized === 'harghita' || normalized === 'hargita') return 'Hargita';
+    if (normalized === 'mures' || normalized === 'maros') return 'Maros';
+    if (normalized === 'covasna' || normalized === 'kovaszna') return 'Kovászna';
+    if (normalized === 'cluj' || normalized === 'kolozs') return 'Kolozs';
+    return city;
+};
+
 // Heuristic to detect if a category string is Hungarian
 export const isHungarianCategory = (cat: string): boolean => {
     if (!cat) return false;
