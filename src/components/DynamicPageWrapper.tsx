@@ -24,7 +24,7 @@ export function DynamicPageWrapper({ initialCategory, initialCity, initialLang }
     }, [initialLang])
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen">
             <Header lang={lang} setLang={setLang} />
             <ServiceListing
                 initialCategory={initialCategory}

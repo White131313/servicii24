@@ -46,7 +46,7 @@ export default function Home() {
   }[lang]
 
   return (
-    <div className="min-h-screen bg-background selection:bg-primary/20">
+    <div className="min-h-screen selection:bg-primary/20">
       <Header lang={lang} setLang={setLang} />
 
       <ServiceListing lang={lang} />
