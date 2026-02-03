@@ -106,17 +106,20 @@
     -webkit-overflow-scrolling: touch;
   }
 
-
-
   /* Premium Background Layer */
   .premium-bg {
     position: fixed;
-    inset: 0;
+    /* Overscan to cover iOS bounce area */
+    top: -15vh;
+    bottom: -15vh;
+    left: -10vw;
+    right: -10vw;
     z-index: -20;
     pointer-events: none;
     background:
       radial-gradient(circle at 20% 0%, hsl(var(--primary) / 0.12), transparent 40%),
       radial-gradient(circle at 80% 0%, hsl(217 91% 60% / 0.08), transparent 40%),
+      radial-gradient(circle at 50% 100%, hsl(var(--primary) / 0.04), transparent 50%),
       hsl(var(--background));
   }
 
@@ -124,7 +127,28 @@
     background:
       radial-gradient(circle at 20% 0%, hsl(var(--primary) / 0.15), transparent 40%),
       radial-gradient(circle at 80% 0%, hsl(217 91% 60% / 0.1), transparent 40%),
+      radial-gradient(circle at 50% 100%, hsl(var(--primary) / 0.08), transparent 50%),
       hsl(var(--background));
+  }
+
+  /* Premium Grid Layer */
+  .premium-grid {
+    position: fixed;
+    /* Overscan to cover iOS bounce area */
+    top: -15vh;
+    bottom: -15vh;
+    left: -10vw;
+    right: -10vw;
+    z-index: -10;
+    pointer-events: none;
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+  }
+
+  .dark .premium-grid {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   }
 }
 

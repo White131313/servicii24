@@ -39,7 +39,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="premium-bg"></div>
-          <div className="fixed inset-0 bg-grid-black-light dark:bg-grid-white-5 pointer-events-none -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent)]"></div>
+          <div className="premium-grid"></div>
           {children}
         </ThemeProvider>
 
