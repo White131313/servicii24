@@ -51,7 +51,7 @@ export default function Home() {
 
       <ServiceListing lang={lang} />
 
-      <footer className="relative border-t border-border/50 py-10 sm:py-16 bg-gradient-to-t from-primary/10 via-muted/20 to-background overflow-hidden">
+      <footer className="relative border-t border-border/50 py-8 sm:py-16 bg-gradient-to-t from-primary/5 via-muted/10 to-transparent overflow-hidden pb-[calc(2rem+env(safe-area-inset-bottom))]">
         <div className="absolute inset-0 bg-grid-black-light dark:bg-grid-white-5 [mask-image:linear-gradient(to_bottom,transparent,black)] pointer-events-none"></div>
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-xl mx-auto mb-8 sm:mb-10">
