@@ -52,7 +52,7 @@ export default function ContactPage() {
     }[lang]
 
     return (
-        <div className="min-h-screen bg-background selection:bg-primary/20">
+        <div className="min-h-screen selection:bg-primary/20">
             <Header lang={lang} setLang={setLang} />
 
             <main className="container mx-auto px-4 py-12 sm:py-20">
