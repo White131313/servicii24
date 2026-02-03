@@ -82,22 +82,30 @@
   html {
     scrollbar-gutter: stable;
     overscroll-behavior: none;
+    overflow-x: clip !important;
+    position: relative;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
   }
 
   body {
     @apply text-foreground antialiased;
     background: transparent;
     overscroll-behavior: none;
-    overflow-x: hidden;
-    width: 100%;
+    overflow-x: clip !important;
+    width: 100% !important;
+    max-width: 100% !important;
     min-height: 100vh;
     position: relative;
     -webkit-overflow-scrolling: touch;
   }
+
+
 
   /* Premium Background Layer */
   .premium-bg {

@@ -336,7 +336,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
     }
 
     return (
-        <main className="container mx-auto px-4 py-4 sm:py-6">
+        <main className="container mx-auto px-4 py-4 sm:py-6 overflow-x-clip">
             <div className="flex flex-col items-center text-center mb-8 sm:mb-12">
                 <h1 className="text-4xl sm:text-6xl font-black mb-4 tracking-tight leading-[1.1]">
                     {selectedCategory && detectedCity
@@ -512,7 +512,7 @@ export function ServiceListing({ initialCategory, initialCity, lang }: ServiceLi
                     <h2 className="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4">{t.testimonialsTitle}</h2>
                     <div className="h-1 w-16 bg-primary/20 mx-auto rounded-full"></div>
                 </div>
-                <div className="relative group w-full">
+                <div className="relative group w-full overflow-hidden">
                     {/* Changed from marquee-content to flex overflow-auto for manual scrolling */}
                     <div className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-6 px-4">
                         {[1, 2, 3, 4, 5].map((idx) => (
