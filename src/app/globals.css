@@ -81,6 +81,9 @@
 @layer base {
   html {
     scrollbar-gutter: stable;
+    overscroll-behavior: none;
+    overflow-x: hidden;
+    height: 100%;
   }
 
   * {
@@ -91,6 +94,12 @@
     @apply bg-background text-foreground antialiased;
     background-image: radial-gradient(circle at 50% 0%, hsl(var(--primary) / 0.15), transparent 70%);
     background-attachment: fixed;
+    overscroll-behavior: none;
+    overflow-x: hidden;
+    width: 100%;
+    min-height: 100%;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
